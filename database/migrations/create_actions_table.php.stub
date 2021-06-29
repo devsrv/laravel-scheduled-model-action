@@ -19,8 +19,9 @@ class CreateActionsTable extends Migration
             $table->morphs('actionable');
             $table->string('action', 20);
             $table->json('properties')->nullable();
-            $table->enum('status', array_keys((new ReflectionClass(Status::class))->getConstants()))->default(Status::PENDING);
+            $table->enum('status', Status::getValues())->default(Status::PENDING);
             $table->timestamp('act_at', $precision = 0);
+            $table->timestamp('finished_at')->nullable();
             $table->timestamps();
         });
     }

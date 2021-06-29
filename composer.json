@@ -17,7 +17,8 @@
         "php": ">=7.4",
         "illuminate/config": "^7.0 || ^8.0",
         "illuminate/database": "^7.0 || ^8.0",
-        "illuminate/support": "^7.0 || ^8.0"
+        "illuminate/support": "^7.0 || ^8.0",
+        "bensampo/laravel-enum": "^3.4"
     },
     "autoload": {
         "psr-4": {

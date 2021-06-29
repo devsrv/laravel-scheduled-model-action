@@ -2,7 +2,9 @@
 
 namespace Devsrv\ScheduledAction\Enums;
 
-final class Status
+use BenSampo\Enum\Enum;
+
+final class Status extends Enum
 {
     const PENDING = 'PENDING';
     const FINISHED = 'FINISHED';
