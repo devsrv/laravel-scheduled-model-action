@@ -13,7 +13,13 @@ class ActionableServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        if ($this->app->runningInConsole()) {
+            if (! class_exists('CreateActionsTable')) {
+                $this->publishes([
+                    __DIR__ . '/../database/migrations/create_actions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_actions_table.php'),
+                ], 'migrations');
+            }
+        }
     }
 
     /**
