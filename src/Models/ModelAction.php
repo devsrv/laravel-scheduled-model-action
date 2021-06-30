@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Devsrv\ScheduledAction\Enums\Status;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
+use Devsrv\ScheduledAction\Traits\{ActionStatus, FluentUpdate, FluentCreate};
 
 class ModelAction extends Model
 {
-    use HasFactory;
+    use HasFactory, ActionStatus, FluentUpdate, FluentCreate;
     
     protected $table = 'model_actions';
 
@@ -29,6 +31,11 @@ class ModelAction extends Model
     public function actionable()
     {
         return $this->morphTo();
+    }
+
+    public function getExtraProperty(string $propertyName): mixed
+    {
+        return Arr::get($this->properties->toArray(), $propertyName);
     }
 
     public function scopeFinished($query)
@@ -61,16 +68,36 @@ class ModelAction extends Model
         return $query->whereBetween('act_at', [$start, $end]);
     }
 
-    public function scopeWhereProperty($query, $prop, $value)
+    public function scopeWhereExtraProperty($query, $prop, $value)
     {
         return $query->whereJsonContains('properties->' . $prop, $value);
     }
 
-    public function scopeWhereProperties($query, array $properties)
+    public function scopeWhereExtraProperties($query, array $properties)
     {
         collect($properties)
         ->each(fn($value, $key) => $query->whereJsonContains('properties->' . $key, $value));
 
         return $query;
+    }
+
+    public function scopeOrderByWhenToAct($query, string $direction = 'asc')
+    {
+        return $query->orderBy('act_at', $direction !== 'asc' ? 'desc' : 'asc');
+    }
+
+    public function scopeFor($query, Model $model)
+    {
+        return $query
+            ->where(function ($query) use($model) {
+                $query
+                ->where('actionable_type', $model->getMorphClass())
+                ->where('actionable_id', $model->getKey());
+        });
+    }
+
+    public function scopeForClass($query, string $model)
+    {
+        return $query->whereHasMorph('actionable', $model);
     }
 }
