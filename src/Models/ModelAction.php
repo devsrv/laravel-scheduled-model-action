@@ -14,14 +14,20 @@ class ModelAction extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'status' => Status::class,
+        'properties' => 'collection',
+        'act_at' => 'datetime',
+        'finished_at' => 'datetime'
+    ];
+
     public function actionable()
     {
         return $this->morphTo();
     }
 
-    protected $casts = [
-        'status' => Status::class,
-        'act_at' => 'datetime',
-        'finished_at' => 'datetime'
-    ];
+    public function scopeFinished($query)
+    {
+        return $query->where('status', Status::FINISHED);
+    }
 }
