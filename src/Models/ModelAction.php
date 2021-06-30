@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Devsrv\ScheduledAction\Enums\Status;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
+use Illuminate\Support\{Arr, Collection};
 use Devsrv\ScheduledAction\Traits\{ActionStatus, FluentUpdate, FluentCreate};
 
 class ModelAction extends Model
@@ -99,5 +99,15 @@ class ModelAction extends Model
     public function scopeForClass($query, string $model)
     {
         return $query->whereHasMorph('actionable', $model);
+    }
+
+    public function scopeModelId($query, int $id)
+    {
+        return $query->where('actionable_id', $id);
+    }
+
+    public function scopeModelIdIn($query, Collection|array $ids)
+    {
+        return $query->whereIn('actionable_id', $ids);
     }
 }
