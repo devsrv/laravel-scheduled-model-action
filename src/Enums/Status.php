@@ -8,5 +8,6 @@ final class Status extends Enum
 {
     const PENDING = 'PENDING';
     const FINISHED = 'FINISHED';
-    const CANCELLED = 'PENDING';
+    const CANCELLED = 'CANCELLED';
+    const DISPATCHED = 'DISPATCHED';
 }
