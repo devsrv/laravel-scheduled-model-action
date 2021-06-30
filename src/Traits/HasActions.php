@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait HasActions
 {
-    public function modelAction(): MorphMany
+    public function scheduledActions(): MorphMany
     {
         return $this->morphMany(ModelAction::class, 'actionable');
     }
