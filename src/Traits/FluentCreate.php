@@ -4,15 +4,15 @@ namespace Devsrv\ScheduledAction\Traits;
 
 use Devsrv\ScheduledAction\Enums\Status;
 use Illuminate\Database\Eloquent\Model;
-use DateTime;
+use Carbon\Carbon;
 use InvalidArgumentException;
-
 
 trait FluentCreate
 {
     private static $forModel;
-    private static $actAt;
-    private static $actBy;
+    private static $actDate = null;
+    private static $actTime;
+    private static $actWith;
     private static $actionStatus = null;
     private static $props = [];
 
@@ -21,13 +21,24 @@ trait FluentCreate
         return new self;
     }
 
-    public static function actAt(DateTime $at) {
-        self::$actAt = $at;
+    public static function actAt(Carbon $carbon) {
+        self::$actDate = $carbon;
+        self::$actTime = $carbon;
         return new self;
     }
 
-    public static function actBy(string $by) {
-        self::$actBy = $by;
+    public static function actDate(Carbon $carbon) {
+        self::$actDate = $carbon;
+        return new self;
+    }
+
+    public static function actTime(Carbon $carbon) {
+        self::$actTime = $carbon;
+        return new self;
+    }
+
+    public static function actWith(string $by) {
+        self::$actWith = $by;
         return new self;
     }
 
@@ -60,14 +71,15 @@ trait FluentCreate
         $this->create([
             'actionable_type' => get_class(self::$forModel),
             'actionable_id' => (self::$forModel)->getKey(),
-            'action' => self::$actBy,
+            'action' => self::$actWith,
             'properties' => self::$props,
             'status' => self::$actionStatus ?? Status::PENDING,
-            'act_at' => self::$actAt,
+            'act_on' => self::$actDate ? self::$actDate->toDateString() : null,
+            'act_at' => self::$actTime->toTimeString(),
         ]);
     }
 
     private function beforeCreate() {
-        throw_if(! isset(self::$forModel, self::$actBy, self::$actAt), new InvalidArgumentException('model attribute missing'));
+        throw_if(! isset(self::$forModel, self::$actWith, self::$actTime), new InvalidArgumentException('model attribute missing'));
     }
 }
