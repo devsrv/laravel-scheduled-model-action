@@ -4,6 +4,7 @@ namespace Devsrv\ScheduledAction\Traits;
 
 use Devsrv\ScheduledAction\Enums\Status;
 use Illuminate\Support\Collection;
+use Carbon\Carbon;
 
 trait FluentUpdate
 {
@@ -32,6 +33,25 @@ trait FluentUpdate
     {
         $this->status = Status::DISPATCHED;
         $this->finished_at = null;
+        return $this;
+    }
+
+    public function setActOn(Carbon $carbon)
+    {
+        $this->act_on = $carbon->toDateString();
+        $this->act_at = $carbon->toTimeString();
+        return $this;
+    }
+
+    public function setActDate(Carbon $carbon)
+    {
+        $this->act_on = $carbon->toDateString();
+        return $this;
+    }
+
+    public function setActTime(Carbon $carbon)
+    {
+        $this->act_at = $carbon->toTimeString();
         return $this;
     }
 
