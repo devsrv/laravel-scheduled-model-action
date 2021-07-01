@@ -20,7 +20,8 @@ class CreateActionsTable extends Migration
             $table->string('action', 20);
             $table->json('properties')->nullable();
             $table->enum('status', Status::getValues())->default(Status::PENDING);
-            $table->timestamp('act_at', $precision = 0);
+            $table->date('act_on')->nullable();
+            $table->time('act_at');
             $table->timestamp('finished_at')->nullable();
             $table->timestamps();
         });
