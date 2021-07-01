@@ -20,6 +20,7 @@ class ModelAction extends Model
     protected $casts = [
         'status' => Status::class,
         'properties' => 'collection',
+        'act_on' => 'datetime:Y-m-d',
         'act_at' => 'datetime',
         'finished_at' => 'datetime'
     ];
@@ -60,12 +61,17 @@ class ModelAction extends Model
 
     public function scopeToActToday($query)
     {
-        return $query->whereDate('act_at', self::today());
+        return $query->whereDate('act_on', self::today());
     }
 
-    public function scopeToActBetween($query, $start, $end)
+    public function scopeToActOn($query, Carbon $date)
     {
-        return $query->whereBetween('act_at', [$start, $end]);
+        return $query->whereDate('act_on', $date);
+    }
+
+    public function scopeToActBetween($query, Carbon $start, Carbon $end)
+    {
+        return $query->whereBetween('act_at', [$start->toTimeString(), $end->toTimeString()]);
     }
 
     public function scopeWhereExtraProperty($query, $prop, $value)
@@ -83,7 +89,9 @@ class ModelAction extends Model
 
     public function scopeOrderByWhenToAct($query, string $direction = 'asc')
     {
-        return $query->orderBy('act_at', $direction !== 'asc' ? 'desc' : 'asc');
+        return $query
+        ->orderBy('act_on', $direction !== 'asc' ? 'desc' : 'asc')
+        ->orderBy('act_at', $direction !== 'asc' ? 'desc' : 'asc');
     }
 
     public function scopeFor($query, Model $model)
