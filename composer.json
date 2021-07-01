@@ -1,6 +1,6 @@
 {
-    "name": "devsrv/scheduled-model-action",
-    "description": "Scheduled Model Action Manager For Laravel",
+    "name": "devsrv/laravel-scheduled-action",
+    "description": "Handle Scheduled Model Action For Laravel",
     "keywords": [
         "laravel",
         "devsrv"
