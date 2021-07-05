@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
 use Illuminate\Support\{Arr, Collection};
 use Devsrv\ScheduledAction\Traits\{ActionStatus, FluentUpdate, FluentCreate};
+use Devsrv\ScheduledAction\Models\RecurringAction;
 
 class ModelAction extends Model
 {
@@ -32,6 +33,11 @@ class ModelAction extends Model
     public function actionable()
     {
         return $this->morphTo();
+    }
+
+    public function recurringDays()
+    {
+        return $this->hasMany(RecurringAction::class, 'schedule_id');
     }
 
     public function getExtraProperty(string $propertyName): mixed
