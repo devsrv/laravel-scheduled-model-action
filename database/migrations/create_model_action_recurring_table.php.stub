@@ -18,6 +18,7 @@ class CreateModelActionRecurringTable extends Migration
             $table->id();
             $table->foreignId('schedule_id')->constrained('model_actions', 'id')->onDelete('cascade');
             $table->enum('day', Days::getValues());
+            $table->unique(['schedule_id', 'day']);
             $table->timestamps();
         });
     }
