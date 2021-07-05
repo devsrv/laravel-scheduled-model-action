@@ -46,16 +46,6 @@ class ModelAction extends Model
         return Arr::get($this->properties->toArray(), $propertyName);
     }
 
-    public function scopeToActToday($query)
-    {
-        return $query->whereDate('act_on', self::today());
-    }
-
-    public function scopeToActOn($query, Carbon $date)
-    {
-        return $query->whereDate('act_on', $date);
-    }
-
     public function scopeToActBetween($query, Carbon $start, Carbon $end)
     {
         return $query->whereBetween('act_at', [$start->toTimeString(), $end->toTimeString()]);
@@ -72,13 +62,6 @@ class ModelAction extends Model
         ->each(fn($value, $key) => $query->whereJsonContains('properties->' . $key, $value));
 
         return $query;
-    }
-
-    public function scopeOrderByWhenToAct($query, string $direction = 'asc')
-    {
-        return $query
-        ->orderBy('act_on', $direction !== 'asc' ? 'desc' : 'asc')
-        ->orderBy('act_at', $direction !== 'asc' ? 'desc' : 'asc');
     }
 
     public function scopeFor($query, Model $model)
