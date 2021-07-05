@@ -22,6 +22,7 @@ class CreateActionsTable extends Migration
             $table->enum('status', Status::getValues())->default(Status::PENDING);
             $table->date('act_on')->nullable();
             $table->time('act_at');
+            $table->boolean('recurring')->default(false);
             $table->timestamp('finished_at')->nullable();
             $table->timestamps();
         });
