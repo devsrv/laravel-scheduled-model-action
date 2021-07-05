@@ -23,6 +23,7 @@ class ModelAction extends Model
         'properties' => 'collection',
         'act_on' => 'datetime:Y-m-d',
         'act_at' => 'datetime',
+        'recurring' => 'boolean',
         'finished_at' => 'datetime'
     ];
 
@@ -43,26 +44,6 @@ class ModelAction extends Model
     public function getExtraProperty(string $propertyName): mixed
     {
         return Arr::get($this->properties->toArray(), $propertyName);
-    }
-
-    public function scopeFinished($query)
-    {
-        return $query->where('status', Status::FINISHED);
-    }
-
-    public function scopePending($query)
-    {
-        return $query->where('status', Status::PENDING);
-    }
-
-    public function scopeCancelled($query)
-    {
-        return $query->where('status', Status::CANCELLED);
-    }
-
-    public function scopeDispatched($query)
-    {
-        return $query->where('status', Status::DISPATCHED);
     }
 
     public function scopeToActToday($query)
