@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+use Devsrv\ScheduledAction\Enums\Days;
+
+class CreateModelActionRecurringTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('model_action_recurring', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('schedule_id')->constrained('model_actions', 'id')->onDelete('cascade');
+            $table->enum('day', Days::getValues());
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('model_action_recurring');
+    }
+}
