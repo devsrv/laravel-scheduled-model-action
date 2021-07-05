@@ -2,7 +2,7 @@
 
 namespace Devsrv\ScheduledAction\Traits;
 
-use Devsrv\ScheduledAction\Enums\Status;
+use Devsrv\ScheduledAction\Enums\{Status, Days};
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use InvalidArgumentException;
@@ -15,6 +15,7 @@ trait FluentCreate
     private static $actWith;
     private static $actionStatus = null;
     private static $props = [];
+    private static $recurringDays = [];
 
     public static function forModel(Model $model) {
         self::$forModel = $model;
@@ -65,21 +66,42 @@ trait FluentCreate
         return new self;
     }
 
+    public static function runsOnEvery(array $days) {
+        self::$recurringDays = $days;
+        return new self;
+    }
+
     public function createSchedule() {
         $this->beforeCreate();
 
-        $this->create([
+        $is_recurring = (bool) count(self::$recurringDays);
+
+        $action = $this->create([
             'actionable_type' => get_class(self::$forModel),
             'actionable_id' => (self::$forModel)->getKey(),
             'action' => self::$actWith,
             'properties' => self::$props,
             'status' => self::$actionStatus ?? Status::PENDING,
-            'act_on' => self::$actDate ? self::$actDate->toDateString() : null,
+            'act_on' => $is_recurring ? null : ( self::$actDate ? self::$actDate->toDateString() : null ),
             'act_at' => self::$actTime->toTimeString(),
+            'recurring' => $is_recurring
         ]);
+
+        if($is_recurring) {
+            $action->recurringDays()->createMany(
+                collect(self::$recurringDays)->map(fn($d) => ['day' => $d])->all()
+            );
+        }
     }
 
     private function beforeCreate() {
         throw_if(! isset(self::$forModel, self::$actWith, self::$actTime), new InvalidArgumentException('model attribute missing'));
+
+        if(count(self::$recurringDays)) {
+            collect(self::$recurringDays)->each(fn($d) => throw_unless(
+                in_array($d, Days::getValues()), 
+                new InvalidArgumentException('recurring day must be type '. Days::class)
+            ));
+        }
     }
 }
