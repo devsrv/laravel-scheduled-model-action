@@ -2,10 +2,11 @@
 
 namespace Devsrv\ScheduledAction\Traits;
 
-use Devsrv\ScheduledAction\Enums\{Status, Days};
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use InvalidArgumentException;
+use Devsrv\ScheduledAction\Util;
+use Illuminate\Database\Eloquent\Model;
+use Devsrv\ScheduledAction\Enums\{Status, Days};
 
 trait FluentCreate
 {
@@ -97,11 +98,6 @@ trait FluentCreate
     private function beforeCreate() {
         throw_if(! isset(self::$forModel, self::$actWith, self::$actTime), new InvalidArgumentException('model attribute missing'));
 
-        if(count(self::$recurringDays)) {
-            collect(self::$recurringDays)->each(fn($d) => throw_unless(
-                in_array($d, Days::getValues()), 
-                new InvalidArgumentException('recurring day must be type '. Days::class)
-            ));
-        }
+        if(count(self::$recurringDays)) { Util::validateDays(self::$recurringDays); }
     }
 }
