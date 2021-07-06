@@ -8,7 +8,7 @@ use Devsrv\ScheduledAction\Models\ModelAction;
 
 class Action
 {
-    public function emit()
+    public function emit($poll = 10)
     {
         if(! $receiver = config('scheduledaction.receiver')) return;
 
@@ -17,7 +17,7 @@ class Action
         $callableReceiver = new $receiver;
         call_user_func(
             $callableReceiver, 
-            $this->needsToRunToday( config('scheduledaction.actions_per_poll') )
+            $this->needsToRunToday( $poll )
         );
     }
 

@@ -3,6 +3,7 @@
 namespace Devsrv\ScheduledAction;
 
 use Illuminate\Support\ServiceProvider;
+use Devsrv\ScheduledAction\Console\PollScheduledAction;
 
 class ActionableServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,10 @@ class ActionableServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/config.php' => config_path('scheduledaction.php'),
             ], 'config');
+
+            $this->commands([
+                PollScheduledAction::class,
+            ]);
         }
     }
 
