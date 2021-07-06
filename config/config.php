@@ -5,5 +5,7 @@ return [
 
     'actions_per_poll' => 10,
 
+    'receiver' => null,
+
     'auto_reset_finished_recurring_actions' => true,
 ];
