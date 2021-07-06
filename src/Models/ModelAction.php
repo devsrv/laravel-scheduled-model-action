@@ -46,6 +46,11 @@ class ModelAction extends Model
         return Arr::get($this->properties->toArray(), $propertyName);
     }
 
+    public function getActTimeAttribute(): string
+    {
+        return $this->act_at->toTimeString();
+    }
+
     public function scopeToActBetween($query, Carbon $start, Carbon $end)
     {
         return $query->whereBetween('act_at', [$start->toTimeString(), $end->toTimeString()]);
