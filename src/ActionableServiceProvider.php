@@ -3,7 +3,7 @@
 namespace Devsrv\ScheduledAction;
 
 use Illuminate\Support\ServiceProvider;
-use Devsrv\ScheduledAction\Console\PollScheduledAction;
+use Devsrv\ScheduledAction\Console\{PollScheduledAction, ResetRecurringAction};
 
 class ActionableServiceProvider extends ServiceProvider
 {
@@ -28,6 +28,7 @@ class ActionableServiceProvider extends ServiceProvider
 
             $this->commands([
                 PollScheduledAction::class,
+                ResetRecurringAction::class,
             ]);
         }
     }
