@@ -10,7 +10,15 @@ class Action
 {
     public function emit()
     {
-        
+        if(! $receiver = config('scheduledaction.receiver')) return;
+
+        if(! class_exists($receiver) && ! is_callable(new $receiver)) return;
+
+        $callableReceiver = new $receiver;
+        call_user_func(
+            $callableReceiver, 
+            $this->needsToRunToday( config('scheduledaction.actions_per_poll') )
+        );
     }
 
     protected function getPendingSchedules($date = null, $limit = 10, $orderBy = 'asc') : Collection {
@@ -19,18 +27,20 @@ class Action
         $date = $date ?? Carbon::now();
         $day = strtoupper($date->englishDayOfWeek);
 
-        return ModelAction::pending()
-        ->where(function($query) use($date) {
+        return ModelAction::query()
+        ->with('actionable')
+        ->pending()
+        ->where(function($query) use($date, $day) {
             $query
-            ->whereDate('act_on', $date);
-        })
-        ->when($day, function ($query, $day) {
-            return $query
-                ->orWhere(function($query) use ($day) {
-                    $query->whereHas('recurringDays', function (Builder $query) use ($day) {
-                        $query->where('day', $day);
+            ->whereDate('act_on', $date)
+            ->when($day, function ($query, $day) {
+                return $query
+                    ->orWhere(function($query) use ($day) {
+                        $query->whereHas('recurringDays', function (Builder $query) use ($day) {
+                            $query->where('day', $day);
+                        });
                     });
-                });
+            });
         })
         ->orderByRaw('TIME(`act_at`) '. $orderBy)
         ->take($limit)
