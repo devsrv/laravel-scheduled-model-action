@@ -171,6 +171,7 @@ $action->setNonRecurring()->setActOn($carbon)->save();
 #### Step - 1 :
 <details>
 <summary>Some event happend and a task is created to execute on future day & time</summary>
+
 ```php
 ModelAction::actWith('MAIL')
 ->forModel($application)
@@ -187,6 +188,7 @@ ModelAction::actWith('MAIL')
 #### Step - 2 :
 <details>
 <summary>admin decides to alter the task</summary>
+
 ```php
 public function modifyScheduledTask() {
     $this->validate();
@@ -213,6 +215,7 @@ public function cancelSchedule() {
 #### Step - 3 :
 <details>
 <summary>receiver class gets task payload & passes the task to classes based on task action (for this example sending email)</summary>
+
 ```php
 <?php
 
@@ -240,6 +243,7 @@ class ScheduledActionReceiver
 #### Step - 4 :
 <details>
 <summary>email sending task payload gets received via previous receiver class and mail is sent</summary>
+
 ```php
 class MailTaskHandler
 {
