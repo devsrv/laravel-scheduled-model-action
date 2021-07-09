@@ -1,7 +1,10 @@
 <?php
 
 return [
-    'receiver' => null,
+    /**
+     * needs to be an invikable object (class with __invoke method)
+     * receives collection of tasks that need to run next
+     */
 
-    'auto_reset_finished_recurring_actions' => true,
+    'receiver' => null, // example: \App\Http\AutoAction\ScheduledActionReceiver::class
 ];
