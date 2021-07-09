@@ -165,6 +165,105 @@ $action->syncWithoutDetachingRunsOnEvery([Days::SUNDAY, ..]);  // doesnt remove 
 $action->setNonRecurring()->setActOn($carbon)->save();
 ```
 
+### Example
+
+###### Step - 1 : some event happend and a task is created to execute on future day & time
+```php
+ModelAction::actWith('MAIL')
+->forModel($application)
+->actAt($inThreeDays)
+->setExtraProperties([
+  'mailable' => RejectApplication::class,
+  'template' => $template,
+  'role' => $application->job->role
+])
+->createSchedule();
+```
+
+###### Step - 2 : admin decides to alter the task
+```php
+public function modifyScheduledTask() {
+    $this->validate();
+
+    $this->schedule
+        ->setActDate(Carbon::createFromFormat('m/d/Y', $this->act_date))
+        ->setActTime(Carbon::createFromFormat('H:i:s', $this->act_time))
+        ->mergeExtraProperties([
+            'template' => $this->templateid,
+            'extra_data' => $this->role
+        ])
+        ->save();
+
+    $this->info('schedule updated');
+}
+    
+public function cancelSchedule() {
+    $this->schedule->setCancelled()->save();
+    $this->info('schedule cancelled');
+}
+```
+
+###### Step - 3 : receiver class gets task payload & passes the task to classes based on task action (for this example sending email)
+```php
+<?php
+
+namespace App\Http\AutoAction;
+
+use Facades\App\Http\Services\AutoAction\Mailer;
+
+class ScheduledActionReceiver
+{
+    public function __invoke($tasks)
+    {
+        foreach ($tasks as $task) {
+            match($task->action) {
+                'MAIL'    => MailTaskHandler::handle($task),
+                ...
+
+                default   => activity()->log('auto action task unhandled')
+            };
+        }
+    }
+}
+```
+###### Step - 4 : email sending task payload gets received via previous receiver class and mail is sent
+```php
+class MailTaskHandler
+{
+	public function handle($task) {
+        [$user, $mailable, $extras, $time] = $this->extractData($task);
+
+        Mail::to($user)
+        ->later(
+            Carbon::now()->setTimeFromTimeString($time),
+            new $mailable($user, $extras)
+        );
+
+        $task->setFinished()->save();	// 👈 marking the task finished here though it is actually not, because for mail there is no easy way to execute this code after that mail is actually sent
+    }
+
+    private function extractData($task) {
+        $model = $task->actionable;
+        $user = null;
+
+        $mailable = $task->getExtraProperty('mailable');
+        $template = $task->getExtraProperty('template');
+
+        $extras = [];
+
+        if($mailable === RejectApplication::class) {
+            $extras['role'] = $task->getExtraProperty('role');
+
+            $user = $model->applicant;
+        }
+
+        $time = $task->act_time;
+
+        return [$user, $mailable, $template, $extras, $time];
+    }
+}
+```
+
 
 ## Changelog
 
