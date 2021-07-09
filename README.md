@@ -168,7 +168,9 @@ $action->setNonRecurring()->setActOn($carbon)->save();
 
 ## Example
 
-###### Step - 1 : some event happend and a task is created to execute on future day & time
+#### Step - 1 :
+<details>
+<summary>Some event happend and a task is created to execute on future day & time</summary>
 ```php
 ModelAction::actWith('MAIL')
 ->forModel($application)
@@ -180,6 +182,7 @@ ModelAction::actWith('MAIL')
 ])
 ->createSchedule();
 ```
+</details>
 
 ###### Step - 2 : admin decides to alter the task
 ```php
