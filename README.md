@@ -52,6 +52,18 @@ $schedule->command('scheduledaction:poll --tasks=10')->hourly();  // poll pendin
 $schedule->command('scheduledaction:reset')->dailyAt('12:01'); // resets previously finished recurring tasks' status that needs to run today, skip this if your app doesn't need recurring task handling
 ```
 
+#### ✔️ Use the `HasActions` trait in your models
+```php
+use Devsrv\ScheduledAction\Traits\HasActions;
+
+class Candidate extends Model
+{
+    use HasFactory, HasActions;
+    
+    ...
+}
+```
+
 ### 💡 Note :
 - This package creates two tables `model_actions` and `model_action_recurring`
 - Every task has 4 satatus `PENDING` `FINISHED` `CANCELLED` `DISPATCHED`
