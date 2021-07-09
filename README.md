@@ -184,7 +184,9 @@ ModelAction::actWith('MAIL')
 ```
 </details>
 
-###### Step - 2 : admin decides to alter the task
+#### Step - 2 :
+<details>
+<summary>admin decides to alter the task</summary>
 ```php
 public function modifyScheduledTask() {
     $this->validate();
@@ -206,8 +208,11 @@ public function cancelSchedule() {
     $this->info('schedule cancelled');
 }
 ```
+</details>
 
-###### Step - 3 : receiver class gets task payload & passes the task to classes based on task action (for this example sending email)
+#### Step - 3 :
+<details>
+<summary>receiver class gets task payload & passes the task to classes based on task action (for this example sending email)</summary>
 ```php
 <?php
 
@@ -230,7 +235,11 @@ class ScheduledActionReceiver
     }
 }
 ```
-###### Step - 4 : email sending task payload gets received via previous receiver class and mail is sent
+</details>
+
+#### Step - 4 :
+<details>
+<summary>email sending task payload gets received via previous receiver class and mail is sent</summary>
 ```php
 class MailTaskHandler
 {
@@ -267,6 +276,7 @@ class MailTaskHandler
     }
 }
 ```
+</details>
 
 ## Changelog
 
