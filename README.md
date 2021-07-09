@@ -5,6 +5,8 @@
 
 Handle scheduled one time or recurring tasks associated with Eloquent models.
 
+<p align="center"><img src="https://i.ibb.co/QDgztXV/Screen-Recording-09-07-2021-03-14-00-PM.gif" width="480" alt="example app" /></p>
+
 > imagine a job portal where if an application gets rejected the app needs to notify the applicant via automated email after 3 days of that event, during that period the admin may change his mind and prevent the auto mail sending or modify the mail content
 
 For any scheduled task we can directly use Laravel's [queue](https://laravel.com/docs/8.x/queues) but what if that task needs to be modified is some way before it gets executed?
@@ -12,7 +14,6 @@ For any scheduled task we can directly use Laravel's [queue](https://laravel.com
 This package stores all the tasks that needs to run on a future date & time / recurringly and perform a task only before few moments when it is scheduled to run so that we get the chance to modify the task before it gets executed.
 
 It uses Laravel's task [scheduling](https://laravel.com/docs/8.x/scheduling) to figure out & handle the tasks that needs to be run for the current day at the specified time for that task, and sends the task payload to a [receiver class](https://github.com/devsrv/laravel-scheduled-model-action#step---3--receiver-class-gets-task-payload--passes-the-task-to-classes-based-on-task-action-for-this-example-sending-email) of your app ([configurable](https://github.com/devsrv/laravel-scheduled-model-action#step---3--receiver-class-gets-task-payload--passes-the-task-to-classes-based-on-task-action-for-this-example-sending-email)). So how to perform the task is totally up to you.
-
 
 ### Installation
 
