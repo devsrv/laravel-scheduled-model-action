@@ -7,11 +7,11 @@ Handle scheduled one time or recurring tasks associated with Eloquent models.
 
 > imagine a job portal where if an application gets rejected the app needs to notify the applicant via automated email after 3 days of that event, during that period the admin may change his mind and prevent the auto mail sending or modify the mail content
 
-For any scheduled task we can directly use Laravel's queue but what if that task needs to be modified is some way before it gets executed?
+For any scheduled task we can directly use Laravel's [queue](https://laravel.com/docs/8.x/queues) but what if that task needs to be modified is some way before it gets executed?
 
 This package stores all the tasks that needs to run on a future date & time / recurringly and perform a task only before few moments when it is scheduled to run so that we get the chance to modify the task before it gets executed.
 
-It uses Laravel's task scheduling to figure out & handle the tasks that needs to be run for the current day at the specified time for that task, and sends the task payload to a receiver class of your app (configurable). So how to perform the task is totally up to you.
+It uses Laravel's task [scheduling](https://laravel.com/docs/8.x/scheduling) to figure out & handle the tasks that needs to be run for the current day at the specified time for that task, and sends the task payload to a [receiver class](https://github.com/devsrv/laravel-scheduled-model-action#step---3--receiver-class-gets-task-payload--passes-the-task-to-classes-based-on-task-action-for-this-example-sending-email) of your app ([configurable](https://github.com/devsrv/laravel-scheduled-model-action#step---3--receiver-class-gets-task-payload--passes-the-task-to-classes-based-on-task-action-for-this-example-sending-email)). So how to perform the task is totally up to you.
 
 
 ### Installation
@@ -48,21 +48,22 @@ return [
 ```php
 $schedule->command('scheduledaction:poll --tasks=10')->hourly();  // poll pending tasks (10 tasks every hour & sends payload to your receiver, customize as per your app)
 
-$schedule->command('scheduledaction:reset')->dailyAt('12:01'); // resets previously finished recurring tasks' status that needs to run today, skip this if your app donot need recurring task handling
+$schedule->command('scheduledaction:reset')->dailyAt('12:01'); // resets previously finished recurring tasks' status that needs to run today, skip this if your app doesn't need recurring task handling
 ```
 
-### 💡 NOTE :
-- this package creates two tables `model_actions` and `model_action_recurring`
-- every task has 4 satatus `PENDING` `FINISHED` `CANCELLED` `DISPATCHED`
-- `PENDING` tasks gets run at specified date & time, remember to mark the task as `FINISHED` or `CANCELLED` based on how it was handled.
-- most likely you'll use queue to run a task at a specified time so after dispatching to a queued job you might want to set the status as `DISPATCHED`
+### 💡 Note :
+- This package creates two tables `model_actions` and `model_action_recurring`
+- Every task has 4 satatus `PENDING` `FINISHED` `CANCELLED` `DISPATCHED`
+- The `scheduledaction:poll` artisan command polls `PENDING` tasks for the present day and passes the tasks payload to your receiver class.
+- Set how often you want the poll to happen of how many tasks needs to be passed to your receiver (the above [example](#%EF%B8%8F-add-scheduled-task-to-appconsolekernelphp) shows 10 per hour)
+- `PENDING` tasks gets run at specified date & time, remember to mark the task as `FINISHED` or `CANCELLED` based on how it was handled [check example](#step---4--email-sending-task-payload-gets-received-via-previous-receiver-class-and-mail-is-sent).
+- The `scheduledaction:reset` command updates only `FINISHED` recurring tasks to `PENDING` if it needs to run today i.e. resets the recurring tasks which is basically just a query so we can run it once a day
+- Most likely you'll use queue to run a task at a specified time so after dispatching to a queued job you might want to set the status as `DISPATCHED`
 
->there are many fluent methods to interact with the tables, check below:-
+## There are many fluent methods to interact with the tables
 
 
-### Use
-
-#### Get
+### Get
 
 ```php
 use Devsrv\ScheduledAction\Models\ModelAction;
@@ -111,7 +112,7 @@ ModelAction::where('properties->type', 'success')->get();
 \Devsrv\ScheduledAction\Facades\Action::needsToRunToday(10, 'desc');
 ```
 
-#### Create
+### Create
 
 ```php
 $action = $model->scheduledActions()->create([
@@ -145,7 +146,7 @@ ModelAction::actWith('EMAIL')->forModel(Candidate::find(10))->actDate($carbon)->
 ModelAction::actTime($carbon)->createSchedule();
 ```
 
-#### Update
+### Update
 ```php
 
 $action->setPending()->save();
@@ -165,7 +166,7 @@ $action->syncWithoutDetachingRunsOnEvery([Days::SUNDAY, ..]);  // doesnt remove 
 $action->setNonRecurring()->setActOn($carbon)->save();
 ```
 
-### Example
+## Example
 
 ###### Step - 1 : some event happend and a task is created to execute on future day & time
 ```php
@@ -185,7 +186,7 @@ ModelAction::actWith('MAIL')
 public function modifyScheduledTask() {
     $this->validate();
 
-    $this->schedule
+    $this->task
         ->setActDate(Carbon::createFromFormat('m/d/Y', $this->act_date))
         ->setActTime(Carbon::createFromFormat('H:i:s', $this->act_time))
         ->mergeExtraProperties([
@@ -198,7 +199,7 @@ public function modifyScheduledTask() {
 }
     
 public function cancelSchedule() {
-    $this->schedule->setCancelled()->save();
+    $this->task->setCancelled()->save();
     $this->info('schedule cancelled');
 }
 ```
@@ -263,7 +264,6 @@ class MailTaskHandler
     }
 }
 ```
-
 
 ## Changelog
 
