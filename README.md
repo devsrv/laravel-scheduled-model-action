@@ -9,7 +9,7 @@ Handle scheduled one time or recurring tasks associated with Eloquent models.
 
 > imagine a job portal where if an application gets rejected the app needs to notify the applicant via automated email after 3 days of that event, during that period the admin may change his mind and prevent the auto mail sending or modify the mail content
 
-For any scheduled task we can directly use Laravel's [queue](https://laravel.com/docs/8.x/queues) but what if that task needs to be modified is some way before it gets executed?
+For any scheduled task we can directly use Laravel's [queue](https://laravel.com/docs/8.x/queues) but what if that task needs to be modified in some way before it gets executed?
 
 This package stores all the tasks that needs to run on a future date & time / recurringly and perform a task only before few moments when it is scheduled to run so that we get the chance to modify the task before it gets executed.
 
