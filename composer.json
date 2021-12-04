@@ -20,9 +20,19 @@
         "illuminate/support": "^7.0 || ^8.0",
         "bensampo/laravel-enum": "^3.4"
     },
+    "require-dev": {
+        "orchestra/testbench": "^6.23",
+        "pestphp/pest": "^1.21"
+    },
     "autoload": {
         "psr-4": {
-            "Devsrv\\ScheduledAction\\": "src/"
+            "Devsrv\\ScheduledAction\\": "src/",
+            "Database\\Factories\\": "database/factories"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Devsrv\\ScheduledAction\\Tests\\": "tests/"
         }
     },
     "extra": {
