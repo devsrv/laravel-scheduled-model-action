@@ -2,7 +2,6 @@
 
 namespace Devsrv\ScheduledAction;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Devsrv\ScheduledAction\Models\ModelAction;
 
@@ -10,7 +9,7 @@ class Action
 {
     public function emit($poll = 10)
     {
-        if(! $receiver = config('scheduledaction.receiver')) return;
+        if(! $receiver = config('scheduled-action.receiver')) return;
 
         if(! class_exists($receiver) && ! is_callable(new $receiver)) return;
 
@@ -24,23 +23,14 @@ class Action
     protected function getPendingSchedules($date = null, $limit = 10, $orderBy = 'asc') : Collection {
         if($orderBy !== 'asc') $orderBy = 'desc';
 
-        $date = $date ?? Carbon::now();
-        $day = strtoupper($date->englishDayOfWeek);
+        $date = $date ?? now();
 
         return ModelAction::query()
         ->with('actionable')
         ->pending()
-        ->where(function($query) use($date, $day) {
+        ->where(function($query) use($date) {
             $query
-            ->whereDate('act_on', $date)
-            ->when($day, function ($query, $day) {
-                return $query
-                    ->orWhere(function($query) use ($day) {
-                        $query->whereHas('recurringDays', function (Builder $query) use ($day) {
-                            $query->where('day', $day);
-                        });
-                    });
-            });
+            ->whereDate('act_on', $date);
         })
         ->orderByRaw('TIME(`act_at`) '. $orderBy)
         ->take($limit)
@@ -54,7 +44,7 @@ class Action
      * @return Illuminate\Database\Eloquent\Collection
      */
     public function needsToRunToday($take = 10, $orderBy = 'asc') : Collection {
-        return $this->getPendingSchedules(Carbon::now(), $take, $orderBy);
+        return $this->getPendingSchedules(now(), $take, $orderBy);
     }
 
     /**
