@@ -19,8 +19,8 @@ class ActionFactory extends Factory
             'action' => Arr::random(['MAIL', 'SMS']),
             'properties' => ['superhero' => 'bat man'],
             'status' => Status::PENDING,
-            'act_on' => $this->faker->date(),
-            'act_at' => $this->faker->time(),
+            'act_date' => $this->faker->date(),
+            'act_time' => $this->faker->time(),
             'finished_at' => now()->subDays(3)
         ];
     }
@@ -31,6 +31,16 @@ class ActionFactory extends Factory
             return [
                 'status' => Status::PENDING,
                 'finished_at' => null,
+            ];
+        });
+    }
+
+    public function finished()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'status' => Status::FINISHED,
+                'finished_at' => now(),
             ];
         });
     }
