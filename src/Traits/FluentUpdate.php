@@ -2,9 +2,8 @@
 
 namespace Devsrv\ScheduledAction\Traits;
 
+use DateTime;
 use Carbon\Carbon;
-use InvalidArgumentException;
-use Devsrv\ScheduledAction\Util;
 use Illuminate\Support\Collection;
 use Devsrv\ScheduledAction\Enums\Status;
 
@@ -38,22 +37,22 @@ trait FluentUpdate
         return $this;
     }
 
-    public function setActOn(Carbon $carbon)
+    public function setActAt(Carbon $carbon)
     {
-        $this->act_on = $carbon->toDateString();
-        $this->act_at = $carbon->toTimeString();
+        $this->act_date = $carbon->toDateString();
+        $this->act_time = $carbon->toTimeString();
         return $this;
     }
 
     public function setActDate(Carbon $carbon)
     {
-        $this->act_on = $carbon->toDateString();
+        $this->act_date = $carbon->toDateString();
         return $this;
     }
 
     public function setActTime(Carbon $carbon)
     {
-        $this->act_at = $carbon->toTimeString();
+        $this->act_time = $carbon->toTimeString();
         return $this;
     }
 
