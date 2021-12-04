@@ -2,13 +2,13 @@
 
 namespace Devsrv\ScheduledAction\Models;
 
+use Carbon\Carbon;
+use Database\Factories\ActionFactory;
 use Illuminate\Database\Eloquent\Model;
 use Devsrv\ScheduledAction\Enums\Status;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Carbon\Carbon;
 use Illuminate\Support\{Arr, Collection};
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Devsrv\ScheduledAction\Traits\{ActionStatus, FluentUpdate, FluentCreate};
-use Devsrv\ScheduledAction\Models\RecurringAction;
 
 class ModelAction extends Model
 {
@@ -21,14 +21,18 @@ class ModelAction extends Model
     protected $casts = [
         'status' => Status::class,
         'properties' => 'collection',
-        'act_on' => 'datetime:Y-m-d',
-        'act_at' => 'datetime',
-        'recurring' => 'boolean',
+        'act_date' => 'datetime:Y-m-d',
+        'act_time' => 'datetime:H:i:s',
         'finished_at' => 'datetime'
     ];
 
+    protected static function newFactory()
+    {
+        return ActionFactory::new();
+    }
+
     private static function today() : string {
-        return Carbon::now()->toDateString();
+        return now()->toDateString();
     }
 
     public function actionable()
@@ -36,19 +40,9 @@ class ModelAction extends Model
         return $this->morphTo();
     }
 
-    public function recurringDays()
-    {
-        return $this->hasMany(RecurringAction::class, 'schedule_id');
-    }
-
     public function getExtraProperty(string $propertyName): mixed
     {
         return Arr::get($this->properties->toArray(), $propertyName);
-    }
-
-    public function getActTimeAttribute(): string
-    {
-        return $this->act_at->toTimeString();
     }
 
     public function scopeToActBetween($query, Carbon $start, Carbon $end)
