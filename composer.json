@@ -3,7 +3,9 @@
     "description": "Handle Scheduled Model Action For Laravel",
     "keywords": [
         "laravel",
-        "devsrv"
+        "devsrv",
+        "schedule",
+        "action"
     ],
     "license": "MIT",
     "authors": [
@@ -41,6 +43,9 @@
                 "Devsrv\\ScheduledAction\\ActionableServiceProvider"
             ]
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest"
     },
     "config": {
         "sort-packages": true
