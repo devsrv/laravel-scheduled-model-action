@@ -7,13 +7,19 @@ Handle scheduled tasks associated with Eloquent models.
 
 <p align="center"><img src="https://i.ibb.co/QDgztXV/Screen-Recording-09-07-2021-03-14-00-PM.gif" width="480" alt="example app" /></p>
 
-> imagine a job portal where if an application gets rejected the app needs to notify the applicant via automated email after 3 days of that event, during that period the admin may change his mind and prevent the auto mail sending or modify the mail content
-
 For any scheduled task we can directly use Laravel's [queue](https://laravel.com/docs/8.x/queues) but what if that task needs to be modified in some way before it gets executed?
 
 This package stores all the tasks that needs to run on a future date & time and executes each only on the day when it is scheduled to run so that we get the chance to modify the task before it gets executed.
 
-It uses Laravel's task [scheduling](https://laravel.com/docs/8.x/scheduling) to figure out & handle the tasks that needs to be run for the current day at the specified time for that task, and sends the task payload to a [receiver class](https://github.com/devsrv/laravel-scheduled-model-action#step---3--receiver-class-gets-task-payload--passes-the-task-to-classes-based-on-task-action-for-this-example-sending-email) of your app ([configurable](https://github.com/devsrv/laravel-scheduled-model-action#step---3--receiver-class-gets-task-payload--passes-the-task-to-classes-based-on-task-action-for-this-example-sending-email)). So how to perform the task is totally up to you.
+It uses Laravel's task [scheduling](https://laravel.com/docs/8.x/scheduling) to figure out & handle the tasks that needs to be run for the current day at the specified time for that task, and sends the task payload to a [receiver class](https://github.com/devsrv/laravel-scheduled-model-action#step---3-) of your app ([configurable](https://github.com/devsrv/laravel-scheduled-model-action#%EF%B8%8F-publish-config)). So how to perform the task is totally up to you.
+
+### 💡 How it works:
+- This package creates one table `model_actions`
+- Every task has 4 satatus `PENDING` `FINISHED` `CANCELLED` `DISPATCHED`
+- The `scheduledaction:poll` artisan command polls `PENDING` tasks for the present day and passes the tasks payload to your receiver class.
+- Set how often you want the poll to happen and how many tasks needs to be passed to your receiver (the above [example](#%EF%B8%8F-add-scheduled-task-to-appconsolekernelphp) shows 10 per hour)
+- `PENDING` tasks gets run at specified date & time, remember to mark the task as `FINISHED` or `CANCELLED` based on how it was handled [check example](#step---4--email-sending-task-payload-gets-received-via-previous-receiver-class-and-mail-is-sent).
+- Most likely you'll use queue to run a task at a specified time so after dispatching to a queued job you might want to set the status as `DISPATCHED`
 
 ### Installation
 
@@ -61,14 +67,6 @@ class Candidate extends Model
     ...
 }
 ```
-
-### 💡 Note :
-- This package creates one table `model_actions`
-- Every task has 4 satatus `PENDING` `FINISHED` `CANCELLED` `DISPATCHED`
-- The `scheduledaction:poll` artisan command polls `PENDING` tasks for the present day and passes the tasks payload to your receiver class.
-- Set how often you want the poll to happen and how many tasks needs to be passed to your receiver (the above [example](#%EF%B8%8F-add-scheduled-task-to-appconsolekernelphp) shows 10 per hour)
-- `PENDING` tasks gets run at specified date & time, remember to mark the task as `FINISHED` or `CANCELLED` based on how it was handled [check example](#step---4--email-sending-task-payload-gets-received-via-previous-receiver-class-and-mail-is-sent).
-- Most likely you'll use queue to run a task at a specified time so after dispatching to a queued job you might want to set the status as `DISPATCHED`
 
 ## There are many fluent methods to interact with the tables
 
@@ -169,6 +167,8 @@ $action->setActTime($carbon)->save();						// only time will be used
 
 ## Example
 
+> imagine a job portal where an application is auto approved after 3 days of apply unless it was auto rejected by some qualifier checks by bot, during that period the admin may override the application status or prevent the auto mail sending or modify the mail content
+
 #### Step - 1 :
 <details>
 <summary>Some event happend and a task is created to execute on future day & time</summary>
@@ -268,7 +268,7 @@ class MailTaskHandler
 
         $extras = [];
 
-        if($mailable === RejectApplication::class) {
+        if($mailable === ApproveApplication::class) {
             $extras['role'] = $task->getExtraProperty('role');
 
             $user = $model->applicant;
