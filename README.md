@@ -5,7 +5,12 @@
 
 Handle scheduled tasks associated with Eloquent models.
 
-<p align="center"><img src="https://i.ibb.co/QDgztXV/Screen-Recording-09-07-2021-03-14-00-PM.gif" width="480" alt="example app" /></p>
+<div style="display:flex;">
+  <img src="https://binarymesh.dev/assets/dist/img/actions-create-task11.svg" width="428" alt="create schedule" />
+  <img src="https://binarymesh.dev/assets/dist/img/actions-poll-011.svg" width="465" alt="poll schedules" />
+</div>
+<br/>
+<br/>
 
 For any scheduled task we can directly use Laravel's [queue](https://laravel.com/docs/8.x/queues) but what if that task needs to be modified in some way before it gets executed?
 
@@ -68,7 +73,7 @@ class Candidate extends Model
 }
 ```
 
-## There are many fluent methods to interact with the tables
+## There are many fluent methods to interact with the scheduled action
 
 
 ### Get
