@@ -4,32 +4,26 @@ namespace Devsrv\ScheduledAction\Traits;
 
 use Devsrv\ScheduledAction\Enums\Status;
 
-
 trait ActionStatus
 {
-    public function scopeisPending() : bool
+    public function getIsPendingAttribute() : bool
     {
         return $this->status == Status::PENDING;
     }
 
-    public function scopeisFinished() : bool
+    public function getIsFinishedAttribute() : bool
     {
         return $this->status == Status::FINISHED;
     }
 
-    public function scopeisCancelled() : bool
+    public function getIsCancelledAttribute() : bool
     {
         return $this->status == Status::CANCELLED;
     }
 
-    public function scopeisDispatched() : bool
+    public function getIsDispatchedAttribute() : bool
     {
         return $this->status == Status::DISPATCHED;
-    }
-
-    public function scopeisRecurring() : bool
-    {
-        return $this->recurring;
     }
 
     public function scopeFinished($query)
@@ -50,10 +44,5 @@ trait ActionStatus
     public function scopeDispatched($query)
     {
         return $query->where('status', Status::DISPATCHED);
-    }
-
-    public function scopeRecurring($query)
-    {
-        return $query->where('recurring', 1);
     }
 }

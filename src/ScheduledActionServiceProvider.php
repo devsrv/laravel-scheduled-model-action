@@ -3,9 +3,9 @@
 namespace Devsrv\ScheduledAction;
 
 use Illuminate\Support\ServiceProvider;
-use Devsrv\ScheduledAction\Console\{PollScheduledAction, ResetRecurringAction};
+use Devsrv\ScheduledAction\Console\PollScheduledAction;
 
-class ActionableServiceProvider extends ServiceProvider
+class ScheduledActionServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
@@ -18,17 +18,15 @@ class ActionableServiceProvider extends ServiceProvider
             if (! class_exists('CreateActionsTable')) {
                 $this->publishes([
                     __DIR__ . '/../database/migrations/create_actions_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_actions_table.php'),
-                    __DIR__ . '/../database/migrations/create_model_action_recurring_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_model_action_recurring_table.php'),
                 ], 'migrations');
             }
 
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('scheduledaction.php'),
+                __DIR__.'/../config/config.php' => config_path('scheduled-action.php'),
             ], 'config');
 
             $this->commands([
                 PollScheduledAction::class,
-                ResetRecurringAction::class,
             ]);
         }
     }
@@ -40,6 +38,6 @@ class ActionableServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'scheduledaction');
+        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'scheduled-action');
     }
 }

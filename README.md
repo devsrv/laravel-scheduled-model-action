@@ -3,7 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/devsrv/laravel-scheduled-action.svg?style=flat-square)](https://packagist.org/packages/devsrv/laravel-inplace)
 [![Total Downloads](https://img.shields.io/packagist/dt/devsrv/laravel-scheduled-action.svg?style=flat-square)](https://packagist.org/packages/devsrv/laravel-inplace)
 
-Handle scheduled one time or recurring tasks associated with Eloquent models.
+Handle scheduled tasks associated with Eloquent models.
 
 <p align="center"><img src="https://i.ibb.co/QDgztXV/Screen-Recording-09-07-2021-03-14-00-PM.gif" width="480" alt="example app" /></p>
 
@@ -11,7 +11,7 @@ Handle scheduled one time or recurring tasks associated with Eloquent models.
 
 For any scheduled task we can directly use Laravel's [queue](https://laravel.com/docs/8.x/queues) but what if that task needs to be modified in some way before it gets executed?
 
-This package stores all the tasks that needs to run on a future date & time / recurringly and perform a task only before few moments when it is scheduled to run so that we get the chance to modify the task before it gets executed.
+This package stores all the tasks that needs to run on a future date & time and executes each only on the day when it is scheduled to run so that we get the chance to modify the task before it gets executed.
 
 It uses Laravel's task [scheduling](https://laravel.com/docs/8.x/scheduling) to figure out & handle the tasks that needs to be run for the current day at the specified time for that task, and sends the task payload to a [receiver class](https://github.com/devsrv/laravel-scheduled-model-action#step---3--receiver-class-gets-task-payload--passes-the-task-to-classes-based-on-task-action-for-this-example-sending-email) of your app ([configurable](https://github.com/devsrv/laravel-scheduled-model-action#step---3--receiver-class-gets-task-payload--passes-the-task-to-classes-based-on-task-action-for-this-example-sending-email)). So how to perform the task is totally up to you.
 
@@ -25,7 +25,7 @@ composer require devsrv/laravel-scheduled-action
 
 #### ✔️ publish migrations
 ```shell
-php artisan vendor:publish --provider="Devsrv\ScheduledAction\ActionableServiceProvider" --tag="migrations"
+php artisan vendor:publish --provider="Devsrv\ScheduledAction\ScheduledActionServiceProvider" --tag="migrations"
 ```
 
 #### ✔️ run migrations
@@ -35,7 +35,7 @@ php artisan migrate
 
 #### ✔️ publish config
 ```shell
-php artisan vendor:publish --provider="Devsrv\ScheduledAction\ActionableServiceProvider" --tag="config"
+php artisan vendor:publish --provider="Devsrv\ScheduledAction\ScheduledActionServiceProvider" --tag="config"
 ```
 
 ```php
@@ -48,29 +48,26 @@ return [
 #### ✔️ Add Scheduled Task to `app/Console/Kernel.php`
 ```php
 $schedule->command('scheduledaction:poll --tasks=10')->hourly();  // poll pending tasks (10 tasks every hour & sends payload to your receiver, customize as per your app)
-
-$schedule->command('scheduledaction:reset')->dailyAt('12:01'); // resets previously finished recurring tasks' status that needs to run today, skip this if your app doesn't need recurring task handling
 ```
 
-#### ✔️ Use the `HasActions` trait in your models
+#### ✔️ Use the `HasScheduledAction` trait in your models
 ```php
-use Devsrv\ScheduledAction\Traits\HasActions;
+use Devsrv\ScheduledAction\Traits\HasScheduledAction;
 
 class Candidate extends Model
 {
-    use HasFactory, HasActions;
+    use HasFactory, HasScheduledAction;
     
     ...
 }
 ```
 
 ### 💡 Note :
-- This package creates two tables `model_actions` and `model_action_recurring`
+- This package creates one table `model_actions`
 - Every task has 4 satatus `PENDING` `FINISHED` `CANCELLED` `DISPATCHED`
 - The `scheduledaction:poll` artisan command polls `PENDING` tasks for the present day and passes the tasks payload to your receiver class.
-- Set how often you want the poll to happen of how many tasks needs to be passed to your receiver (the above [example](#%EF%B8%8F-add-scheduled-task-to-appconsolekernelphp) shows 10 per hour)
+- Set how often you want the poll to happen and how many tasks needs to be passed to your receiver (the above [example](#%EF%B8%8F-add-scheduled-task-to-appconsolekernelphp) shows 10 per hour)
 - `PENDING` tasks gets run at specified date & time, remember to mark the task as `FINISHED` or `CANCELLED` based on how it was handled [check example](#step---4--email-sending-task-payload-gets-received-via-previous-receiver-class-and-mail-is-sent).
-- The `scheduledaction:reset` command updates only `FINISHED` recurring tasks to `PENDING` if it needs to run today i.e. resets the recurring tasks which is basically just a query so we can run it once a day
 - Most likely you'll use queue to run a task at a specified time so after dispatching to a queued job you might want to set the status as `DISPATCHED`
 
 ## There are many fluent methods to interact with the tables
@@ -89,40 +86,40 @@ $model->scheduledActions()->finished()->get();
 $model->scheduledActions()->cancelled()->first();
 $model->scheduledActions()->pending()->get();
 $model->scheduledActions()->dispatched()->paginate();
-$model->scheduledActions()->pending()->toActBetween(Carbon $yesterday, Carbon $today)->get();
-$model->scheduledActions()->pending()->whereExtraProperty('type', 'info')->get();
-$model->scheduledActions()->whereExtraProperty('type', 'success')->get();
-$model->scheduledActions()->whereExtraProperties(['type' => 'info', 'applicant' => 27])->get();
+$model->scheduledActions()->pending()->toActBetweenTime(Carbon::createFromTimeString('14:00:00'), Carbon::createFromTimeString('16:30:00'))->get();
+$model->scheduledActions()->pending()->whereExtraProperty('prefers', 'mail')->get();
+$model->scheduledActions()->whereExtraProperty('channel', 'slack')->get();
+$model->scheduledActions()->whereExtraProperties(['prefers' => 'mail', 'applicant' => 27])->get();
 $model->scheduledActions()->wherePropertyContains('languages', ['en', 'de'])->get();
 $model->scheduledActions()->first()->isPending();
 $model->scheduledActions()->first()->getExtraProperty('customProperty');
 
-$action = ModelAction::find(1);
+$task = ModelAction::find(1);
 
-$action->getExtraProperty('customProperty');
-$action->act_at; 		// 10:22:15
-$action->actionable; 	// associated model
+$task->getExtraProperty('customProperty');
+$task->act_time;
+$task->action;
+$task->actionable; 	// associated model
 
-$action->isPending(); 		// bool
-$action->isFinished(); 		// bool
-$action->isDispatched(); 	// bool
-$action->isCancelled(); 	// bool
-$action->isRecurring(); 	// bool
+$task->isPending; 		    // bool
+$task->isFinished; 		    // bool
+$task->isDispatched; 	    // bool
+$task->isCancelled; 	    // bool
+$task->isRecurring; 	    // bool
 
 ModelAction::finished()->get();
-ModelAction::recurring()->get();
-ModelAction::for($modlel)->pending()->get();
+ModelAction::forModel($modlel)->pending()->get();
 ModelAction::forClass(Candidate::class)->get();
 ModelAction::whereAction('EMAIL')->get();
 ModelAction::forClass(Candidate::class)->modelId(10)->get();
 ModelAction::modelIdIn([10, 11, 12])->get();
-ModelAction::for($modlel)->whereProperty('mailable', \App\Mail\RejectMail::class)->get();
-ModelAction::for($modlel)->whereProperties(['type' => 'info', 'applicant' => 27])->get();
+ModelAction::forModel($modlel)->whereProperty('mailable', \App\Mail\RejectMail::class)->get();
+ModelAction::forModel($modlel)->whereProperties(['type' => 'info', 'applicant' => 27])->get();
 ModelAction::wherePropertyContains('languages', ['en', 'de'])->get();
 ModelAction::where('properties->type', 'success')->get();
 
-\Devsrv\ScheduledAction\Facades\Action::needsToRunOn(Carbon::now(), 10, 'asc');
-\Devsrv\ScheduledAction\Facades\Action::needsToRunToday(10, 'desc');
+\Devsrv\ScheduledAction\Facades\Action::needsToRunOn(now()->tomorrow(), 10, 'asc');
+\Devsrv\ScheduledAction\Facades\Action::needsToRunToday(3);
 ```
 
 ### Create
@@ -132,31 +129,26 @@ $action = $model->scheduledActions()->create([
     'action' => 'EMAIL',
     'properties' => ['color' => 'silver'],
     'status' => \Devsrv\ScheduledAction\Enums\Status::PENDING,
-    'recurring' => 1,
-    'act_at' => Carbon::now()->addDays(3)->setHour(11),
-]);
-
-$action->recurringDays()->create([
-  'day' => \Devsrv\ScheduledAction\Enums\Days::SUNDAY
+    'act_date' => now(),
+    'act_time' => now()->setHour(11),
 ]);
 
 $model->scheduledActions()->createMany([]);
 
-ModelAction::actWith('EMAIL')
-  ->forModel(Candidate::find(10))
-  ->actAt(Carbon::tomorrow()->setHour(11)) // date + time will be set unless runsOnEvery applied
-  ->setExtraProperties(['foo' => 'bar'])
-  ->createSchedule();
+ModelAction::for(Candidate::find(10))
+    ->actWith('EMAIL')
+    ->actAt(Carbon::tomorrow()->setHour(11))    // date + time will be set together
+    ->setExtraProperties(['foo' => 'bar'])
+    ->createSchedule();
 
-ModelAction::actWith('EMAIL')
-  ->forModel(Candidate::find(10))
-  ->actTime(now()->setHour(14)->setMinute(20))
-  ->setExtraProperties(['foo' => 'bar'])
-  ->runsOnEvery([\Devsrv\ScheduledAction\Enums\Days::SUNDAY, \Devsrv\ScheduledAction\Enums\Days::FRIDAY])
-  ->createSchedule();
+ModelAction::for($model)
+    ->actWith('EMAIL')
+    ->actDate($actDate)
+    ->actTime(Carbon::createFromTimeString('20:00:00'))
+    ->setExtraProperties(['foo' => 'bar'])
+    ->createSchedule();
 
-ModelAction::actWith('EMAIL')->forModel(Candidate::find(10))->actDate($carbon)->actTime($carbon)->createSchedule();
-ModelAction::actTime($carbon)->createSchedule();
+ModelAction::for($model)->actWith('EMAIL')->actTime($carbon)->asDispatched()->createSchedule();
 ```
 
 ### Update
@@ -168,15 +160,11 @@ $action->setDispatched()->save();
 $action->setFinished()->save();								// default sets finished_at as now()
 $action->setFinished($carbon)->save();						// set a finished_at time
 $action->mergeExtraProperties(['key' => 'val'])->save();  	// merges extra properties
-$action->withExtraProperties([])->save();/
-$action->setActOn($carbon)->save();							// date and time will be extracted
+$action->withExtraProperties([])->save();                   // overwrites existing
+$action->setPending()->setActAt($actAt)->save();
+$action->setActAt($carbon)->save();							// date and time will be extracted
 $action->setActDate($carbon)->save();						// only date will be used
 $action->setActTime($carbon)->save();						// only time will be used
-
-$action->markAsRecurringRunsOnEvery([Days::SUNDAY, ..]);    // stores only the given days removeing any existing day that was previously set as recurring day
-$action->syncWithoutDetachingRunsOnEvery([Days::SUNDAY, ..]);  // doesnt remove anything yet adds any new days given
-
-$action->setNonRecurring()->setActOn($carbon)->save();
 ```
 
 ## Example
@@ -186,13 +174,12 @@ $action->setNonRecurring()->setActOn($carbon)->save();
 <summary>Some event happend and a task is created to execute on future day & time</summary>
 
 ```php
-ModelAction::actWith('MAIL')
-->forModel($application)
+ModelAction::for($application)
+->actWith('MAIL')
 ->actAt($inThreeDays)
 ->setExtraProperties([
-  'mailable' => RejectApplication::class,
-  'template' => $template,
-  'role' => $application->job->role
+  'mailable' => ApproveApplication::class,
+  'template' => $template
 ])
 ->createSchedule();
 ```
@@ -208,7 +195,7 @@ public function modifyScheduledTask() {
 
     $this->task
         ->setActDate(Carbon::createFromFormat('m/d/Y', $this->act_date))
-        ->setActTime(Carbon::createFromFormat('H:i:s', $this->act_time))
+        ->setActTime(Carbon::createFromTimeString($this->act_time))
         ->mergeExtraProperties([
             'template' => $this->templateid,
             'extra_data' => $this->role

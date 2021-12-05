@@ -4,100 +4,91 @@ namespace Devsrv\ScheduledAction\Traits;
 
 use Carbon\Carbon;
 use InvalidArgumentException;
-use Devsrv\ScheduledAction\Util;
 use Illuminate\Database\Eloquent\Model;
-use Devsrv\ScheduledAction\Enums\{Status, Days};
+use Devsrv\ScheduledAction\Enums\Status;
 
 trait FluentCreate
 {
-    private static $forModel;
-    private static $actDate = null;
-    private static $actTime;
-    private static $actWith;
-    private static $actionStatus = null;
-    private static $props = [];
-    private static $recurringDays = [];
+    protected $forModel;
+    protected $actDate = null;
+    protected $actTime;
+    protected $actWith;
+    protected $actionStatus = null;
+    protected $props = [];
+    protected $recurringDays = [];
 
-    public static function forModel(Model $model) {
-        self::$forModel = $model;
-        return new self;
-    }
-
-    public static function actAt(Carbon $carbon) {
-        self::$actDate = $carbon;
-        self::$actTime = $carbon;
-        return new self;
+    public static function for(Model $model) {
+        return (new static)->setModel($model);
     }
 
-    public static function actDate(Carbon $carbon) {
-        self::$actDate = $carbon;
-        return new self;
+    public function actAt(Carbon $carbon) {
+        $this->actDate = $carbon;
+        $this->actTime = $carbon;
+        return $this;
     }
 
-    public static function actTime(Carbon $carbon) {
-        self::$actTime = $carbon;
-        return new self;
+    public function actDate(Carbon $carbon) {
+        $this->actDate = $carbon;
+        return $this;
     }
 
-    public static function actWith(string $by) {
-        self::$actWith = $by;
-        return new self;
+    public function actTime(Carbon $carbon) {
+        $this->actTime = $carbon;
+        return $this;
     }
 
-    public static function asPending() {
-        self::$actionStatus = Status::PENDING;
-        return new self;
+    public function actWith(string $by) {
+        $this->actWith = $by;
+        return $this;
     }
 
-    public static function asFinished() {
-        self::$actionStatus = Status::FINISHED;
-        return new self;
-    }
-    public static function asDispatched() {
-        self::$actionStatus = Status::DISPATCHED;
-        return new self;
-    }
-    public static function asCancelled() {
-        self::$actionStatus = Status::CANCELLED;
-        return new self;
+    public function asPending() {
+        $this->actionStatus = Status::PENDING;
+        return $this;
     }
 
-    public static function setExtraProperties(array $properties) {
-        self::$props = $properties;
-        return new self;
+    public function asFinished() {
+        $this->actionStatus = Status::FINISHED;
+        return $this;
     }
 
-    public static function runsOnEvery(array $days) {
-        self::$recurringDays = $days;
-        return new self;
+    public function asDispatched() {
+        $this->actionStatus = Status::DISPATCHED;
+        return $this;
+    }
+
+    public function asCancelled() {
+        $this->actionStatus = Status::CANCELLED;
+        return $this;
+    }
+
+    public function setExtraProperties(array $properties) {
+        $this->props = $properties;
+        return $this;
+    }
+
+    public function setModel(Model $model) {
+        $this->forModel = $model;
+        return $this;
     }
 
     public function createSchedule() {
-        $this->beforeCreate();
+        $this->validateBeforeCreate();
 
-        $is_recurring = (bool) count(self::$recurringDays);
-
-        $action = $this->create([
-            'actionable_type' => get_class(self::$forModel),
-            'actionable_id' => (self::$forModel)->getKey(),
-            'action' => self::$actWith,
-            'properties' => self::$props,
-            'status' => self::$actionStatus ?? Status::PENDING,
-            'act_on' => $is_recurring ? null : ( self::$actDate ? self::$actDate->toDateString() : null ),
-            'act_at' => self::$actTime->toTimeString(),
-            'recurring' => $is_recurring
+        $schedule = $this->create([
+            'actionable_type' => get_class($this->forModel),
+            'actionable_id' => ($this->forModel)->getKey(),
+            'action' => $this->actWith,
+            'properties' => $this->props,
+            'status' => $this->actionStatus ?? Status::PENDING,
+            'act_date' => $this->actDate ? $this->actDate->toDateString() : now()->toDateString(),
+            'act_time' => $this->actTime->toTimeString()
         ]);
 
-        if($is_recurring) {
-            $action->recurringDays()->createMany(
-                collect(self::$recurringDays)->map(fn($d) => ['day' => $d])->all()
-            );
-        }
+        return $schedule;
     }
 
-    private function beforeCreate() {
-        throw_if(! isset(self::$forModel, self::$actWith, self::$actTime), new InvalidArgumentException('model attribute missing'));
-
-        if(count(self::$recurringDays)) { Util::validateDays(self::$recurringDays); }
+    private function validateBeforeCreate() {
+        throw_if(! isset($this->forModel, $this->actWith, $this->actTime), new InvalidArgumentException('required model attribute missing'));
     }
 }
