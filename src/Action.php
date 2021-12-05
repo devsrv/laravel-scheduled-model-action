@@ -30,9 +30,9 @@ class Action
         ->pending()
         ->where(function($query) use($date) {
             $query
-            ->whereDate('act_on', $date);
+            ->whereDate('act_date', $date);
         })
-        ->orderByRaw('TIME(`act_at`) '. $orderBy)
+        ->orderByRaw('TIME(`act_time`) '. $orderBy)
         ->take($limit)
         ->get();
     }
