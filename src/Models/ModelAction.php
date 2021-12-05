@@ -45,25 +45,27 @@ class ModelAction extends Model
         return Arr::get($this->properties->toArray(), $propertyName);
     }
 
-    public function scopeToActBetween($query, Carbon $start, Carbon $end)
+    public function scopeToActBetweenTime($query, Carbon $start, Carbon $end)
     {
-        return $query->whereBetween('act_at', [$start->toTimeString(), $end->toTimeString()]);
+        return $query
+            ->whereTime('act_time', '>=', $start->toTimeString())
+            ->whereTime('act_time', '<=', $end->toTimeString());
     }
 
     public function scopeWhereExtraProperty($query, $prop, $value)
     {
-        return $query->whereJsonContains('properties->' . $prop, $value);
+        return $query->where('properties->' . $prop, $value);
     }
 
     public function scopeWhereExtraProperties($query, array $properties)
     {
         collect($properties)
-        ->each(fn($value, $key) => $query->whereJsonContains('properties->' . $key, $value));
+        ->each(fn($value, $key) => $query->where('properties->' . $key, $value));
 
         return $query;
     }
 
-    public function scopeFor($query, Model $model)
+    public function scopeForModel($query, Model $model)
     {
         return $query
             ->where(function ($query) use($model) {

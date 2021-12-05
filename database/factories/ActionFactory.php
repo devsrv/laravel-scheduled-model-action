@@ -2,7 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Support\{Str, Arr};
+use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Model;
 use Devsrv\ScheduledAction\Enums\Status;
 use Devsrv\ScheduledAction\Models\ModelAction;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,6 +24,16 @@ class ActionFactory extends Factory
             'act_time' => $this->faker->time(),
             'finished_at' => now()->subDays(3)
         ];
+    }
+
+    public function model(Model $model)
+    {
+        return $this->state(function (array $attributes) use($model) {
+            return [
+                'actionable_type' => get_class($model),
+                'actionable_id' => $model->id,
+            ];
+        });
     }
 
     public function pending()
