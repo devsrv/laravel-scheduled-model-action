@@ -103,8 +103,6 @@ test('get the actions filter by list of extra properties', function() {
     $actions = $member->scheduledActions()->pending()->whereExtraProperties(['test' => 'pest', 'plays' => 'crickrt'])->get();
     $missing = $member->scheduledActions()->pending()->whereExtraProperties(['test' => 'pest', 'plays' => 'football'])->get();
 
-    dump(env('DB_CONNECTION'));
-
     expect($actions)->toHaveCount(2)
     ->and($missing)->toBeEmpty();
 });
