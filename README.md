@@ -16,23 +16,23 @@ For any scheduled task we can directly use Laravel's [queue](https://laravel.com
 
 This package stores all the tasks that needs to run on a future date & time and executes each only on the day when it is scheduled to run so that we get the chance to modify the task before it gets executed.
 
-It uses Laravel's task [scheduling](https://laravel.com/docs/8.x/scheduling) to figure out & handle the tasks that needs to be run for the current day at the specified time for that task, and sends the task payload to a [receiver class](https://github.com/devsrv/laravel-scheduled-model-action#step---3-) of your app ([configurable](https://github.com/devsrv/laravel-scheduled-model-action#%EF%B8%8F-publish-config)). So how to perform the task is totally up to you.
+It uses Laravel's task [scheduling](https://laravel.com/docs/8.x/scheduling) to figure out & handle the tasks that needs to be run for the current day at the specified time for that task, and sends the task payload to a [receiver class](https://github.com/devsrv/laravel-scheduled-model-action#step---3-) of your app ([configurable](#%EF%B8%8F-publish-config)). So how to perform the task is totally up to you.
 
-### 💡 How it works:
+## 💡 How it works:
 - This package creates one table `model_actions`
 - Every task has 4 satatus `PENDING` `FINISHED` `CANCELLED` `DISPATCHED`
 - The `scheduledaction:poll` artisan command polls `PENDING` tasks for the present day and passes the tasks payload to your receiver class.
 - Set how often you want the poll to happen and how many tasks needs to be passed to your receiver (the above [example](#%EF%B8%8F-add-scheduled-task-to-appconsolekernelphp) shows 10 per hour)
-- `PENDING` tasks gets run at specified date & time, remember to mark the task as `FINISHED` or `CANCELLED` based on how it was handled [check example](#step---4--email-sending-task-payload-gets-received-via-previous-receiver-class-and-mail-is-sent).
+- `PENDING` tasks gets run at specified date & time, remember to mark the task as `FINISHED` or `CANCELLED` based on how it was handled [check example](#step---4-).
 - Most likely you'll use queue to run a task at a specified time so after dispatching to a queued job you might want to set the status as `DISPATCHED`
 
-### Installation
+## Installation
 
 ```shell
 composer require devsrv/laravel-scheduled-action
 ```
 
-### Setup
+## Setup
 
 #### ✔️ publish migrations
 ```shell
@@ -104,8 +104,8 @@ $task->act_time;
 $task->action;
 $task->actionable; 	// associated model
 
-$task->isPending; 		    // bool
-$task->isFinished; 		    // bool
+$task->isPending;	    // bool
+$task->isFinished; 	    // bool
 $task->isDispatched; 	    // bool
 $task->isCancelled; 	    // bool
 $task->isRecurring; 	    // bool
@@ -160,12 +160,12 @@ ModelAction::for($model)->actWith('EMAIL')->actTime($carbon)->asDispatched()->cr
 $action->setPending()->save();
 $action->setCancelled()->save();
 $action->setDispatched()->save();
-$action->setFinished()->save();								// default sets finished_at as now()
+$action->setFinished()->save();							// default sets finished_at as now()
 $action->setFinished($carbon)->save();						// set a finished_at time
-$action->mergeExtraProperties(['key' => 'val'])->save();  	// merges extra properties
-$action->withExtraProperties([])->save();                   // overwrites existing
+$action->mergeExtraProperties(['key' => 'val'])->save();  			// merges extra properties
+$action->withExtraProperties([])->save();                   			// overwrites existing
 $action->setPending()->setActAt($actAt)->save();
-$action->setActAt($carbon)->save();							// date and time will be extracted
+$action->setActAt($carbon)->save();						// date and time will be extracted
 $action->setActDate($carbon)->save();						// only date will be used
 $action->setActTime($carbon)->save();						// only time will be used
 ```
