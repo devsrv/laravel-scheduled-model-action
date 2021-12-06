@@ -1,15 +1,15 @@
 # Laravel Scheduled Action
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/devsrv/laravel-scheduled-action.svg?style=flat-square)](https://packagist.org/packages/devsrv/laravel-inplace)
-[![Total Downloads](https://img.shields.io/packagist/dt/devsrv/laravel-scheduled-action.svg?style=flat-square)](https://packagist.org/packages/devsrv/laravel-inplace)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/devsrv/laravel-scheduled-action.svg?style=flat-square)](https://packagist.org/packages/devsrv/laravel-scheduled-action)
+[![Total Downloads](https://img.shields.io/packagist/dt/devsrv/laravel-scheduled-action.svg?style=flat-square)](https://packagist.org/packages/devsrv/laravel-scheduled-action)
+[![GitHub Tests Action Status](https://github.com/devsrv/laravel-scheduled-model-action/actions/workflows/test.yaml/badge.svg)](https://github.com/devsrv/laravel-scheduled-model-action/actions/workflows/test.yaml)
 
 Handle scheduled tasks associated with Eloquent models.
 
-<div style="display:flex;">
+<p align="center">
   <img src="https://binarymesh.dev/assets/dist/img/actions-create-task11.svg" width="350" alt="create schedule" />
   <img src="https://binarymesh.dev/assets/dist/img/actions-poll-011.svg" width="380" alt="poll schedules" />
-</div>
-<br/>
+</p>
 <br/>
 
 For any scheduled task we can directly use Laravel's [queue](https://laravel.com/docs/8.x/queues) but what if that task needs to be modified in some way before it gets executed?
