@@ -40,7 +40,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Devsrv\\ScheduledAction\\ActionableServiceProvider"
+                "Devsrv\\ScheduledAction\\ScheduledActionServiceProvider"
             ]
         }
     },
