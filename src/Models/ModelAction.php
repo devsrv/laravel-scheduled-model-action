@@ -40,7 +40,7 @@ class ModelAction extends Model
         return $this->morphTo();
     }
 
-    public function getExtraProperty(string $propertyName): mixed
+    public function getExtraProperty(string $propertyName)
     {
         return Arr::get($this->properties->toArray(), $propertyName);
     }
