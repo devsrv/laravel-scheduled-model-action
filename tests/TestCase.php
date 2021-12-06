@@ -22,7 +22,7 @@ class TestCase extends TestbenchTestCase
         include_once __DIR__ . '/../database/migrations/create_actions_table.php.stub';
         (new \CreateActionsTable)->up();
 
-        include_once __DIR__.'/setup/migrations/create_test_tables.php.stub';
+        include_once __DIR__.'/Setup/migrations/create_test_tables.php.stub';
         (new \CreateTestTables())->up();
     }
 }
