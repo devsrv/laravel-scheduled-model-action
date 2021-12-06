@@ -85,7 +85,7 @@ class ModelAction extends Model
         return $query->where('actionable_id', $id);
     }
 
-    public function scopeModelIdIn($query, Collection|array $ids)
+    public function scopeModelIdIn($query, array $ids)
     {
         return $query->whereIn('actionable_id', $ids);
     }

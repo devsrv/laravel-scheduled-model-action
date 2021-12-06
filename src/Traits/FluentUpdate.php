@@ -16,7 +16,7 @@ trait FluentUpdate
         return $this;
     }
 
-    public function setFinished(DateTime|null $at = null)
+    public function setFinished(DateTime $at = null)
     {
         $this->status = Status::FINISHED;
         $this->finished_at = $at ?? now();
