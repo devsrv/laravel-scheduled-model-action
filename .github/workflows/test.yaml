@@ -18,8 +18,10 @@ jobs:
                 include:
                     - laravel: 8.*
                       testbench: 6.*
+                      enum: 3.*
                     - laravel: 7.*
                       testbench: 5.*
+                      enum: 2.*
                 exclude:
                     - laravel: 7.*
                       php: 8.0
@@ -39,7 +41,7 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+                  composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "bensampo/laravel-enum:${{ matrix.enum }}" --no-interaction --no-update
                   composer update --prefer-dist --no-interaction --no-suggest
 
             - name: Execute pest tests
