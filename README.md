@@ -7,8 +7,8 @@
 Handle scheduled tasks associated with Eloquent models.
 
 <p align="center">
-  <img src="https://binarymesh.dev/assets/dist/img/actions-create-task11.svg" width="350" alt="create schedule" />
-  <img src="https://binarymesh.dev/assets/dist/img/actions-poll-011.svg" width="380" alt="poll schedules" />
+  <img src="https://binarymesh.dev/assets/package/actions-create-task11.svg" width="350" alt="create schedule" />
+  <img src="https://binarymesh.dev/assets/package/actions-poll-011.svg" width="380" alt="poll schedules" />
 </p>
 <br/>
 
