@@ -5,6 +5,17 @@
 ### added
 - Laravel 9 support
 
+## v2.1.0 - 2021-12-06
+
+### fix
+- service provider rename fixed
+
+## v2.0.1 - 2021-12-06
+
+### changed
+- minor patch release has no impact on V2.0.0 users
+- requirements & test workflow updated
+
 ## v2.0.0 - 2021-12-05
 
 ### BREAKING CHANGES INTRODUCTED
