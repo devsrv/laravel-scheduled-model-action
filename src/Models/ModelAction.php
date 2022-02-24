@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Database\Factories\ActionFactory;
 use Illuminate\Database\Eloquent\Model;
 use Devsrv\ScheduledAction\Enums\Status;
-use Illuminate\Support\{Arr, Collection};
+use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Devsrv\ScheduledAction\Traits\{ActionStatus, FluentUpdate, FluentCreate};
 

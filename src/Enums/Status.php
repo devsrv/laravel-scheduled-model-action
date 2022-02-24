@@ -2,12 +2,14 @@
 
 namespace Devsrv\ScheduledAction\Enums;
 
-use BenSampo\Enum\Enum;
-
-final class Status extends Enum
+enum Status: string
 {
-    const PENDING = 'PENDING';
-    const FINISHED = 'FINISHED';
-    const CANCELLED = 'CANCELLED';
-    const DISPATCHED = 'DISPATCHED';
+    case PENDING = 'PENDING';
+    case FINISHED = 'FINISHED';
+    case CANCELLED = 'CANCELLED';
+    case DISPATCHED = 'DISPATCHED';
+
+    public static function getValues() {
+        return array_map(fn($v) => $v->value, static::cases());
+    }
 }

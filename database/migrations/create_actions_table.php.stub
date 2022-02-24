@@ -19,7 +19,7 @@ class CreateActionsTable extends Migration
             $table->morphs('actionable');
             $table->string('action', 20);
             $table->json('properties')->nullable();
-            $table->enum('status', Status::getValues())->default(Status::PENDING);  //TODO swap to native implementation
+            $table->enum('status', Status::getValues())->default(Status::PENDING->value);  //TODO swap to native implementation
             $table->date('act_date');
             $table->time('act_time');
             $table->timestamp('finished_at')->nullable();
