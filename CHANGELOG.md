@@ -1,7 +1,9 @@
-## v2.0.0 - 2022-24-02
+## v3.0.0 - 2022-24-02
 
 ### removed
 - php 7 and php < 8.1 no longer supported minimum php requirement is 8.1
+### added
+- Laravel 9 support
 
 ## v2.0.0 - 2021-12-05
 
