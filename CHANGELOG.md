@@ -1,3 +1,8 @@
+## v3.1.0 - 2023-27-03
+
+### added
+- Laravel 10 & PHP 8.2 support
+
 ## v3.0.0 - 2022-24-02
 
 ### removed
